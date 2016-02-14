@@ -1,0 +1,43 @@
+{
+  "name": "full-stack-server",
+  "version": "0.0.0",
+  "description": "Testing",
+  "main": "app.js",
+  "scripts": {
+    "test": "npm test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/nghiattran/full-stack-server.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/nghiattran/full-stack-server/issues"
+  },
+  "homepage": "https://github.com/nghiattran/full-stack-server#readme",
+  "dependencies": {
+    "body-parser": "^1.15.0",
+    "cookie-parser": "^1.4.1",
+    "ejs": "^2.4.1",
+    "errorhandler": "^1.4.3",
+    "expect.js": "^0.3.1",
+    "express": "^4.13.4",
+    "express-jwt": "^3.3.0",
+    "express-session": "^1.13.0",
+    "jsonwebtoken": "^5.5.4",
+    "mongoose": "^4.4.3",
+    "npm": "^3.7.2",
+    "passport": "^0.3.2",
+    "passport-facebook": "^2.1.0",
+    "passport-google-oauth": "^1.0.0",
+    "passport-local": "^1.0.0",
+    "passport-twitter": "^1.0.4",
+    "superagent": "^1.7.2"
+  },
+  "devDependencies": {
+    "chai": "^3.5.0",
+    "gulp": "^3.9.1",
+    "gulp-nodemon": "^2.0.6"
+  }
+}
