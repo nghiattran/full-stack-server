@@ -13,9 +13,7 @@ from src.models.email_model import\
 
 
 class UserModel(BaseModel):
-    _parse_class_name = '_User'
-
-
+    _collection_name = '_User'
 
     def user_update(self, payload, object_id):
         # params for checking user's credentials and payload for updating
@@ -39,18 +37,21 @@ class UserModel(BaseModel):
             payload=payload,
             master_key=True)
         return res
+        # pass
 
 
     def user_login(self, params):
-        res = self.login(params=params)
-
-        # Generate user's token
-        if 'error' not in res:
-            res['token'] = generate_auth_token(res)
-        return res
+        # res = self.login(params=params)
+        #
+        # # Generate user's token
+        # if 'error' not in res:
+        #     res['token'] = generate_auth_token(res)
+        # return res
+        pass
 
 
     def user_signup(self, payload):
+        # pass
         res = self.signup(payload=payload)
 
         # Generate user's token

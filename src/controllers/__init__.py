@@ -19,7 +19,7 @@ class BaseController(Resource):
     pass
 
 class BaseUserController(BaseController):
-    model = UserModel()
+    model = UserModel('my_database')
     get_form = UserGetForm
     put_form = UserPutForm
     signup_form = UserSignupForm

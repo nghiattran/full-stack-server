@@ -1,26 +1,34 @@
-# # @name <%= app_name %>
-# # @description
-# # Utility functions and information for all Models to communicate with Parse
-# # database.
-#
-# import json
-# import requests
-# import urllib
-# from src.components import\
-#     get_config
-# from requests.exceptions import\
-#     ConnectionError
-#
-# PARSE_MAX_LIMIT = 1000
-#
-#
-# class BaseModel(object):
-#     _parse_class_name = None
-#     _parse_special_classes = ['apps', 'users', 'login', 'roles',
-#                               'files', 'events', 'push',
-#                               'installations', 'functions', 'jobs',
-#                               'requestPasswordReset', 'products',
-#                               'roles', 'batch', 'schemas']
+# @name <%= app_name %>
+# @description
+# Utility functions and information for all Models to communicate with Parse
+# database.
+
+import json
+import requests
+import urllib
+from src.components import\
+    get_config
+from requests.exceptions import\
+    ConnectionError
+from src.components.MongoRest import MongoRest
+PARSE_MAX_LIMIT = 1000
+
+
+class BaseModel(MongoRest):
+    _collection_name = None
+
+    def signup(self, payload):
+        if 'username' and 'password' not in payload:
+            return {'error': 'Missing username or password'}
+
+        return self.post(collection='Users', payload=payload)
+
+    def login(self, params, keys=None):
+        return self.get(collection='Users', params=params, keys=keys)
+
+
+#     _collection_name = None
+
 #
 #     def generate_header(self, master_key=None):
 #

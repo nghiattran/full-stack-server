@@ -10,7 +10,7 @@ from src.models.authentication_model import\
     requires_auth,\
     check_all_request_limit
 
-_parse_class_name = BaseUserController.model._parse_class_name
+_collection_name = BaseUserController.model._collection_name
 
 
 class UsersController(BaseUserController):
