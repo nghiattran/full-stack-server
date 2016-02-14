@@ -11,6 +11,8 @@ var config = {
 
 	// Server IP
 	ip: process.env.IP || '0.0.0.0',
-}
 
+}
+// Server base url
+config.baseUrl = 'http://' + config.ip + ':' + config.port;
 module.exports = config;

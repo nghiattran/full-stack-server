@@ -8,6 +8,11 @@ var cookieParser = require('cookie-parser');
 var session = require('express-session');
 var bodyParser = require('body-parser');
 var config = require('./config/enviroment');
+var mongoose = require('mongoose');
+
+// connect to mongo
+mongoose.connect('mongodb://localhost/test');
+
 // create app object
 var app = express();
 
@@ -22,12 +27,14 @@ var server = http.createServer(app)
 
 // Start server
 function startServer() {
-  server.listen(config.port, config.ip, function() {
-    console.log('Express server listening on %d, in %s mode', config.port, app.get('env'));
-  });
+	server.listen(config.port, config.ip, function() {
+		console.log('Express server listening on %d, in %s mode', config.port, app.get('env'));
+	});
 }
 
-setImmediate(startServer);
+if (false) {
+	setImmediate(startServer);
+};
 
 // Expose app
 exports = module.exports = app;
