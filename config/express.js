@@ -4,6 +4,7 @@ var path = require('path');
 var cookieParser = require('cookie-parser');
 var session = require('express-session');
 var bodyParser = require('body-parser');
+var passport = require('passport');
 
 exports = module.exports = function (app) {
 	app.set('appName', 'hello-world');
@@ -16,4 +17,6 @@ exports = module.exports = function (app) {
 	// app.use(session({secret: '2C44774A-D649-4D44-9535-46E296EF984F'}));
 	app.use(bodyParser.urlencoded({ extended: false }));
 	app.use(bodyParser.json());
+	app.use(passport.initialize());
+	app.use(passport.session());
 }

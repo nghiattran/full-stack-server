@@ -7,7 +7,7 @@ var path = require('path');
 var cookieParser = require('cookie-parser');
 var session = require('express-session');
 var bodyParser = require('body-parser');
-var config = require('./config/enviroment');
+var config = require('./config/environment');
 var mongoose = require('mongoose');
 
 // connect to mongo
@@ -32,7 +32,7 @@ function startServer() {
 	});
 }
 
-if (false) {
+if (process.env.NODE_ENV === 'dev') {
 	setImmediate(startServer);
 };
 

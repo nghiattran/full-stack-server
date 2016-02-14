@@ -6,9 +6,10 @@ var controller = require('./user.controller')
 
 var router = new Router();
 router.get('/', function(req, res) {
-	res.render('user.html');
+	// res.render('user.html');
+	res.json({get: 'nothing'});
 })
-// router.post('/', controller.signup);
+router.post('/', controller.signup);
 
 // router.get('/', auth.hasRole('admin'), controller.index);
 // router.delete('/:id', auth.hasRole('admin'), controller.destroy);
