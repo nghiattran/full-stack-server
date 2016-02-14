@@ -10,7 +10,7 @@ from functools import\
     wraps
 from flask import\
     request
-from src.utils import\
+from src.components import\
     get_config
 
 

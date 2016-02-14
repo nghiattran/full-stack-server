@@ -10,7 +10,7 @@ import requests
 import urllib
 from app import\
     app
-from src.utils import\
+from src.components import\
     get_config
 from click.testing import\
     CliRunner

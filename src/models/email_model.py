@@ -3,7 +3,7 @@
 # Utility functions for sending emails
 
 import sendgrid
-from src.utils import get_config
+from src.components import get_config
 
 
 def sendgrid_init(email_to, subject, subs, email_from):

@@ -2,7 +2,7 @@
 # @description
 # Utility functions for sending emails
 
-from src.utils import get_config
+from src.components import get_config
 import twilio
 import twilio.rest
 

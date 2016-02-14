@@ -57,3 +57,14 @@
 	│   └── integration
 	│
 	└── app.py
+
+# Database operations
+
+	Post
+	Get
+	Put
+	Delete
+	Patch
+	Roles
+	Files
+	

@@ -10,7 +10,6 @@ import string
 CONFIG = None
 CONFIG_SCHEMA= None
 
-
 def get_config(
         config_env='API_CONFIG',
         key= None):

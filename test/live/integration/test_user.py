@@ -3,7 +3,7 @@
 # Tests for UserController
 
 from test import BaseTestCase
-from src.utils import\
+from src.components import\
     get_config
 
 class UserTestCase(BaseTestCase):

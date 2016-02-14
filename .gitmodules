@@ -1,0 +1,3 @@
+[submodule "MongoRest"]
+	path = src/components/MongoRest
+	url = git@github.com:nghiattran/MongoRest.git

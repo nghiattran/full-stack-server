@@ -6,7 +6,7 @@ import json
 from src.models.authentication_model import \
     generate_auth_token
 from src.models import BaseModel
-from src.utils import random_string
+from src.components import random_string
 from src.models.email_model import\
     send_activation_email,\
     send_reset_password_email
