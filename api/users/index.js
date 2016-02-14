@@ -1,11 +1,11 @@
 'use strict';
 
-var Router = require('Router').Router;
+// var Router = require('Router').Router;
 
 // import * as controller from './user.controller';
 // import * as auth from '../../auth/auth.service';
 
-var router = new Router();
+// var router = new Router();
 
 // router.get('/', auth.hasRole('admin'), controller.index);
 // router.delete('/:id', auth.hasRole('admin'), controller.destroy);
@@ -14,4 +14,4 @@ var router = new Router();
 // router.get('/:id', auth.isAuthenticated(), controller.show);
 // router.post('/', controller.create);
 
-export default router;
+// export default router;
