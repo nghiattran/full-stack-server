@@ -4,6 +4,7 @@ var express = require('express');
 var passport = require('passport');
 var config = require('../../config/environment');
 var User = require('../user/user.model');
+var auth = require('./auth.service');
 
 // Passport Configuration
 // require('./local/passport').setup(User, config);

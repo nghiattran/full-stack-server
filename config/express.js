@@ -15,7 +15,7 @@ exports = module.exports = function (app) {
 	// Session
 	app.use(cookieParser('3CCC4ACD-6ED1-4844-9217-82131BDCB239'));
 	// app.use(session({secret: '2C44774A-D649-4D44-9535-46E296EF984F'}));
-	app.use(bodyParser.urlencoded({ extended: false }));
+	app.use(bodyParser.urlencoded({ extended: true }));
 	app.use(bodyParser.json());
 	app.use(passport.initialize());
 	app.use(passport.session());

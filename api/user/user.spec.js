@@ -7,17 +7,21 @@ var request = require('request');
 var app = require('../../app');
 var server = http.createServer(app)
 
+const RIGHT_PASSWORD = 'password';
+const WRONG_PASSWORD = 'wrong-password';
+const LOGIN_RETURN_KEYS = ['token'];
+
 function genUserForm () {
 	return {
 		username: crypto.randomBytes(20).toString('hex'),
-		password: 'password',
-		email: crypto.randomBytes(20).toString('hex') + '@yahoo.com'
+		password: RIGHT_PASSWORD,
+		email: crypto.randomBytes(20).toString('hex') + '@email.com'
 	}
 };
 
 function signup (done) {
 	var testForm = genUserForm();
-	request.post({url:testUrl, form: testForm}, function optionalCallback(err, res, body) {
+	request.post({url:testUrl, form: testForm}, function next(err, res, body) {
 		body = JSON.parse(body);
 		return body.results;
 	});
@@ -28,7 +32,7 @@ describe('test', function () {
 		server.listen(config.port, config.ip, function() {
 			console.log('Express server listening on %d, in %s mode', config.port, app.get('env'));
 		});
-    });
+  });
 
 	it('should return 200', function (done) {
 		request
@@ -43,15 +47,14 @@ describe('test', function () {
 	});
 });
 
-describe('test: POST /api/users', function () {
+describe('test signup: POST /api/users', function () {
 	var testUrl = config.baseUrl + '/api/user';
 
 	it('test empty form', function (done) {
-		request.post({url:testUrl, form: {}}, function optionalCallback(err, res, body) {
-			if (err) {
-				assert.ifError(err);
-			}
+		request.post({url:testUrl, form: {}}, function next(err, res, body) {
+			body = JSON.parse(body);
 			assert.equal(500, res.statusCode);
+			assert.property(body, 'error');
 			done();
 		});
 	});
@@ -59,11 +62,10 @@ describe('test: POST /api/users', function () {
 	it('test empty email', function (done) {
 		var testForm = genUserForm();
 		delete testForm['email']; 
-		request.post({url:testUrl, form: testForm}, function optionalCallback(err, res, body) {
-			if (err) {
-				assert.ifError(err);
-			}
+		request.post({url:testUrl, form: testForm}, function next(err, res, body) {
+			body = JSON.parse(body);
 			assert.equal(500, res.statusCode);
+			assert.property(body, 'error');
 			done();
 		});
 	});
@@ -71,11 +73,10 @@ describe('test: POST /api/users', function () {
 	it('test empty username', function (done) {
 		var testForm = genUserForm();
 		delete testForm['username'];
-		request.post({url:testUrl, form: testForm}, function optionalCallback(err, res, body) {
-			if (err) {
-				assert.ifError(err);
-			}
+		request.post({url:testUrl, form: testForm}, function next(err, res, body) {
+			body = JSON.parse(body);
 			assert.equal(500, res.statusCode);
+			assert.property(body, 'error');
 			done();
 		});
 	});
@@ -83,75 +84,120 @@ describe('test: POST /api/users', function () {
 	it('test empty password', function (done) {
 		var testForm = genUserForm();
 		delete testForm['password'];
-		request.post({url:testUrl, form: testForm}, function optionalCallback(err, res, body) {
-			if (err) {
-				assert.ifError(err);
-			}
+		request.post({url:testUrl, form: testForm}, function next(err, res, body) {
+			body = JSON.parse(body);
 			assert.equal(500, res.statusCode);
+			assert.property(body, 'error');
 			done();
 		});
 	});
 
 	it('test post', function (done) {
 		var testForm = genUserForm();
-		request.post({url:testUrl, form: testForm}, function optionalCallback(err, res, body) {
-			if (err) {
-				assert.ifError(err);
-			}
+		request.post({url:testUrl, form: testForm}, function next(err, res, body) {
 			body = JSON.parse(body);
-			assert.property(body, 'results');
-			assert.property(body.results, '_id');
-			assert.equal(200, res.statusCode);
+			assert.property(body, 'token');
+			assert.equal(200, res.statusCode)
 			done();
 		});
 	});
 });
 
-describe('auth', function () {
+
+
+
+describe('test login', function () {
 	var testUrl = config.baseUrl + '/auth/local';
 	var testUser;
 
 	beforeEach(function (done) {
 		var testForm = genUserForm();
-		request.post({url:config.baseUrl + '/api/user', form: testForm}, function optionalCallback(err, res, body) {
+		request.post({url:config.baseUrl + '/api/user', form: testForm}, function next(err, res, body) {
 			body = JSON.parse(body);
-			testUser = body.results;
+			testUser = testForm;
 			done();
 		});
-    });
+  });
 
-	it('test auth', function (done) {
-		var testForm = testUser;
-		testForm.password = 'password';
-		request.post({url:testUrl, form: testForm}, function optionalCallback(err, res, body) {
-			if (err) {
-				assert.ifError(err);
-			}
+	it('test successful', function (done) {
+		var testForm = {
+			username: testUser.username,
+			password: RIGHT_PASSWORD
+		};
+		request.post({url:testUrl, form: testForm}, function next(err, res, body) {
 			body = JSON.parse(body);
 			assert.property(body, 'token');
+			assert.equal(200, res.statusCode)
 			done();
 		});
 	});
 
-	it('test auth empty form', function (done) {
+	it('test with empty form', function (done) {
 		var testForm = {};
 
-		request.post({url:testUrl, form: testForm}, function optionalCallback(err, res, body) {
-			if (err) {
-				assert.ifError(err);
-			}
-			assert.equal(401, res.statusCode)
+		request.post({url:testUrl, form: testForm}, function next(err, res, body) {
+			body = JSON.parse(body);
+			assert.equal(401, res.statusCode);
+			assert.property(body, 'error');
 			done();
 		});
 	});
 
-	it('test auth wrong password', function (done) {
+	it('test with wrong password', function (done) {
 		var testForm = testUser;
-		request.post({url:testUrl, form: testForm}, function optionalCallback(err, res, body) {
-			if (err) {
-				assert.ifError(err);
-			}
+		testForm.password = WRONG_PASSWORD;
+		request.post({url:testUrl, form: testForm}, function next(err, res, body) {
+			body = JSON.parse(body);
+			assert.equal(401, res.statusCode);
+			assert.property(body, 'error');
+			done();
+		});
+	});
+});
+
+describe('test update', function () {
+	var testUrl = config.baseUrl + '/api/user';
+	var testUser;
+
+	beforeEach(function (done) {
+		var testForm = genUserForm();
+		request.post({url:config.baseUrl + '/api/user', form: testForm}, function next(err, res, body) {
+			body = JSON.parse(body);
+			testUser = body;
+			done();
+		});
+  });
+
+	it('test successful', function (done) {
+		var testUpdateUrl = testUrl + '/' + testUser['id'] + '/password';
+		var testForm = {
+			oldPassword: RIGHT_PASSWORD,
+			newPassword: 'has changed'
+		}
+		
+		var headers = {
+	    'authorization': testUser.token,
+		}
+
+		request.put({url:testUpdateUrl, form: testForm, headers:headers}, function next(err, res, body) {
+			body = JSON.parse(body);
+			assert.property(body, 'token');
+			assert.equal(200, res.statusCode)
+			done();
+		});
+	});
+
+	it('test without token', function (done) {
+		var testUpdateUrl = testUrl + '/' + testUser['id'] + '/password';
+		var testForm = {
+			oldPassword: RIGHT_PASSWORD,
+			newPassword: 'has changed'
+		}
+
+		request.put({url:testUpdateUrl, form: testForm}, function next(err, res, body) {
+			body = JSON.parse(body);
 			assert.equal(401, res.statusCode)
+			assert.property(body, 'error');
 			done();
 		});
 	});

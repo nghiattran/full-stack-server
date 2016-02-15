@@ -13,14 +13,6 @@ gulp.task('start', function () {
 	})
 })
 
-// gulp.task('start', function () {
-// 	nodemon({
-// 		script: 'app.js',
-// 		ext: 'js html',
-// 		env: { 'NODE_ENV': 'test' }
-// 	})
-// })
-
 gulp.task('test::user', function () {
 	return gulp.src('api/user/user.spec.js', {read: false})
 		.pipe(mocha({reporter: 'nyan'}))

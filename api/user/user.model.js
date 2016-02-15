@@ -12,18 +12,21 @@ var UserSchema = new Schema({
 	password: {
 		type: String, 
 		required: 'password is required' },
-    email: {
-        type: String,
-        required: 'email is required',
-        lowercase: true,
-        unique: true
-    },
-    auth: {},
-    role: { type: String, default: 'user' },
-    createdAt: { type: Date, default: Date.now },
-    updatedAt: { type: Date, default: Date.now }
+  email: {
+      type: String,
+      required: 'email is required',
+      lowercase: true,
+      unique: true
+  },
+  auth: {},
+  role: { type: String, default: 'user' },
+  isActivated: { type: Boolean, default: false },
+  createdAt: { type: Date, default: Date.now },
+  updatedAt: { type: Date, default: Date.now }
 });
 
+// Set indexes
+UserSchema.index({ username: 1, email: 1 });
 
 // Validator
 UserSchema
@@ -37,7 +40,11 @@ UserSchema
 // Addon methods for user object
 UserSchema.methods = {
 	authenticate(password, hash, callback) {
-		callback(hash === this.encryptPassword(password));
+    if (callback) {
+      callback(hash === this.encryptPassword(password));
+    } else {
+      return hash === this.encryptPassword(password);
+    }
 	},
 	encryptPassword(password) {
 		return crypto.createHash('sha256')
