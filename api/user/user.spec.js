@@ -19,11 +19,10 @@ function genUserForm () {
 	}
 };
 
-function signup (done) {
-	var testForm = genUserForm();
-	request.post({url:testUrl, form: testForm}, function next(err, res, body) {
+function signup (user, done) {
+	request.post({url:config.baseUrl + '/api/user', form: user}, function next(err, res, body) {
 		body = JSON.parse(body);
-		return body.results;
+		done(body);
 	});
 };
 
@@ -111,11 +110,11 @@ describe('test login', function () {
 	var testUser;
 
 	beforeEach(function (done) {
-		var testForm = genUserForm();
-		request.post({url:config.baseUrl + '/api/user', form: testForm}, function next(err, res, body) {
-			body = JSON.parse(body);
-			testUser = testForm;
-			done();
+		testUser = genUserForm();
+		signup(testUser, function (user) {
+			testUser.id = user.id;
+			testUser.token = user.token;
+			done()
 		});
   });
 
@@ -123,7 +122,8 @@ describe('test login', function () {
 		var testForm = {
 			username: testUser.username,
 			password: RIGHT_PASSWORD
-		};
+		}
+		
 		request.post({url:testUrl, form: testForm}, function next(err, res, body) {
 			body = JSON.parse(body);
 			assert.property(body, 'token');
@@ -160,11 +160,11 @@ describe('test update', function () {
 	var testUser;
 
 	beforeEach(function (done) {
-		var testForm = genUserForm();
-		request.post({url:config.baseUrl + '/api/user', form: testForm}, function next(err, res, body) {
-			body = JSON.parse(body);
-			testUser = body;
-			done();
+		testUser = genUserForm();
+		signup(testUser, function (user) {
+			testUser.id = user.id;
+			testUser.token = user.token;
+			done()
 		});
   });
 
@@ -174,7 +174,7 @@ describe('test update', function () {
 			oldPassword: RIGHT_PASSWORD,
 			newPassword: 'has changed'
 		}
-		
+
 		var headers = {
 	    'authorization': testUser.token,
 		}
@@ -201,4 +201,49 @@ describe('test update', function () {
 			done();
 		});
 	});
+});
+
+
+
+
+describe('test reset request', function () {
+	var testUrl = config.baseUrl + '/api/user/reset';
+	var testUser;
+
+	beforeEach(function (done) {
+		testUser = genUserForm();
+		signup(testUser, function (user) {
+			testUser.id = user.id;
+			testUser.token = user.token;
+			done()
+		});
+  });
+
+	it('test successful', function (done) {
+		var testForm = {
+			email: testUser.email
+		}
+
+		request.post({url:testUrl, form: testForm}, function next(err, res, body) {
+			body = JSON.parse(body);
+			assert.property(body, 'message');
+			assert.equal(200, res.statusCode)
+			done();
+		});
+	});
+
+	it('test with wrong email', function (done) {
+		var testForm = {
+			email: "email"
+		}
+
+		request.post({url:testUrl, form: testForm}, function next(err, res, body) {
+			body = JSON.parse(body);
+			console.log(res.statusCode);
+			assert.property(body, 'error');
+			assert.equal(404, res.statusCode)
+			done();
+		});
+	});
+	
 });

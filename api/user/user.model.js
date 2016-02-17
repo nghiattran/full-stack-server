@@ -3,7 +3,9 @@ var Schema = require('mongoose').Schema,
     ObjectId = Schema.ObjectId;
 var crypto = require('crypto');
 
-
+/**
+ * Schema for user
+ */
 var UserSchema = new Schema({
 	username: {
 		type: String, 
@@ -22,13 +24,19 @@ var UserSchema = new Schema({
   role: { type: String, default: 'user' },
   isActivated: { type: Boolean, default: false },
   createdAt: { type: Date, default: Date.now },
-  updatedAt: { type: Date, default: Date.now }
+  updatedAt: { type: Date, default: Date.now },
+  resetPasswordToken: String,
+  resetPasswordExpires: Date
 });
 
 // Set indexes
 UserSchema.index({ username: 1, email: 1 });
 
-// Validator
+// Validators
+
+/**
+ * Validators for email
+ */
 UserSchema
 	.path('email')
 	.validate(function (email) {
@@ -39,13 +47,27 @@ UserSchema
 
 // Addon methods for user object
 UserSchema.methods = {
-	authenticate(password, hash, callback) {
-    if (callback) {
-      callback(hash === this.encryptPassword(password));
+
+  /**
+   * Check if the password is match with hash password
+   * @param  {[type]}   password Password string
+   * @param  {[type]}   hash     Password has from database
+   * @param  {Function} next     Callback
+   * @return {[type]}            [description]
+   */
+	authenticate(password, hash, next) {
+    if (next) {
+      next(hash === this.encryptPassword(password));
     } else {
       return hash === this.encryptPassword(password);
     }
 	},
+
+  /**
+   * Hash the password
+   * @param  {[type]} password Password string
+   * @return {[type]}          [description]
+   */
 	encryptPassword(password) {
 		return crypto.createHash('sha256')
 			.update(password)

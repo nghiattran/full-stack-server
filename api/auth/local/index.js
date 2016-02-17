@@ -19,9 +19,4 @@ router.post('/', function(req, res, next) {
   })(req, res, next)
 });
 
-// router.post('/', function(req, res){
-//   console.log(req.header)
-//   // next();
-// });
-
 module.exports = router;

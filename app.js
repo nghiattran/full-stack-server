@@ -1,6 +1,7 @@
 'use strict';
 
 // Include dependencies
+var log = require('npmlog');
 var express = require('express');
 var http = require('http');
 var config = require('./config/environment');
@@ -24,7 +25,8 @@ var server = http.createServer(app)
 // Start server
 function startServer() {
 	server.listen(config.port, config.ip, function() {
-		console.log('Express server listening on %d, in %s mode', config.port, app.get('env'));
+    log.info('Express', 'Listening on port %s', app.get('port'));
+		// console.log('Express server listening on %d, in %s mode', config.port, app.get('env'));
 	});
 }
 
