@@ -79,14 +79,22 @@ controller.signup = function (req, res, next) {
  * @param  {Function} next callback for what to do next
  * @return {[type]}        
  */
-controller.updatePassword = function (req, res, next) {
+controller.updateUser = function (req, res, next) {
 	var userId = req.user._id;
 	var oldPass = String(req.body.oldPassword);
 	var newPass = String(req.body.newPassword);
+	var conPass = String(req.body.confirmPassword);
+
+	if (newPass != conPass) {
+		return res.status(500).json({
+			message:"New password and confirm password don't match"
+		});
+	};
 
 	// Get user info
 	User.findByIdAsync(userId)
 	.then(function (user) {
+
 		if (user.authenticate(oldPass, user.password)) {
 
 			// Update info
@@ -100,7 +108,7 @@ controller.updatePassword = function (req, res, next) {
 			.catch(validationError(res))
 
 		} else {
-      return res.status(403).end();
+			return res.status(404).json({'error': 'Wrong password.'})
     }
 	}).catch(validationError(res))
 }
