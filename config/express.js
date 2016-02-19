@@ -5,8 +5,11 @@ var cookieParser = require('cookie-parser');
 var session = require('express-session');
 var bodyParser = require('body-parser');
 var passport = require('passport');
+var morgan = require('morgan');
 
 exports = module.exports = function (app) {
+  var env = app.get('env');
+
 	app.set('appName', 'hello-world');
 	app.set('port', process.env.PORT || 3000);
 	app.set('views', path.join(__dirname, '../views'));
@@ -39,4 +42,12 @@ exports = module.exports = function (app) {
     // Pass to next layer of middleware
     next();
 	});
+
+  if ('production' === env) {
+    app.use(morgan('dev'));
+  }
+
+  if ('dev' === env || 'test' === env) {
+    app.use(morgan('dev'));
+  }
 }
