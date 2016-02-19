@@ -3,8 +3,10 @@
 var jwt = require('jsonwebtoken');
 var expressJwt = require('express-jwt');
 var compose = require('composable-middleware');
+var config = require('../../config/environment');
 
-var service = exports
+
+var service = exports;
 
 var session = 'qQ5MxCjb98iBwpIJPWWWPfl2UCHujrP7od5UiUrohaCsf6a4fYBUn0v6tmOAimh';
 
@@ -24,8 +26,14 @@ service.signToken = function(id, role, username) {
  * [verifyToken description]
  * @param  {[Str]} token [Authorization token]
  */
-var verifyToken = function (token, next) {
-	jwt.verify(token, session, next);
+var verifyToken = function (req, res, next) {
+	return jwt.verify(req.headers.authorization, session, function(err, user) {
+    if (err) {
+      return res.status(403).json({error: 'Forbidden'});
+    };
+    req.user = user;
+    return next()
+  });
 }
 
 var validateJwt = expressJwt({
@@ -38,14 +46,24 @@ var validateJwt = expressJwt({
  */
 service.isAuthenticated = function () {
   return compose()
-    .use(function(req, res, next) {
-      // check user access token
-      return jwt.verify(req.headers.authorization, session, function(err, user) {
-        if (err) {
-          return res.status(401).json({error: 'Authorized access'});
-        };
-        req.user = user;
-        return next()
-      });
-    })
+    .use(verifyToken)
+}
+
+/**
+ * Checks if the user role meets the minimum requirements of the route
+ */
+service.hasRole = function (roleRequired) {
+  if (!roleRequired) {
+    throw new Error('Required role needs to be set');
+  }
+
+  return compose()
+    .use(service.isAuthenticated())
+    .use(function (req, res, next) {
+      if (config.userRoles.indexOf(req.user.role) >= config.userRoles.indexOf(roleRequired)) {
+        next();
+      } else {
+        res.status(403).json({error: 'Forbidden'});
+      }
+    });
 }

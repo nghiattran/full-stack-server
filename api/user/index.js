@@ -5,18 +5,14 @@ var controller = require('./user.controller');
 var auth = require('../auth/auth.service');
 
 var router = new Router();
-router.get('/', function(req, res) {
-	res.json({get: 'nothing'});
-})
-router.post('/', controller.signup);
 
-// router.get('/', auth.hasRole('admin'), controller.index);
-// router.delete('/:id', auth.hasRole('admin'), controller.destroy);
-// router.get('/me', auth.isAuthenticated(), controller.me);
-router.put('/:id/setting', auth.isAuthenticated(), controller.updateUser);
+router.post('/', controller.signup);
+// router.put('/:id/activate', controller.activate);
 router.post('/reset', controller.handleResetRequest);
 router.post('/reset/:id', controller.handleResetPassword);
-// router.get('/:id', auth.isAuthenticated(), controller.show);
-// router.post('/', controller.create);
 
+router.put('/:id/setting', auth.hasRole('user'), controller.updateUser);
+
+// router.get('/', auth.hasRole('admin'), controller.getUsers);
+router.put('/:id', auth.hasRole('admin'), controller.updateUserAdmin);
 exports = module.exports = router;

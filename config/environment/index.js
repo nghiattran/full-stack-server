@@ -12,6 +12,9 @@ var config = {
 	// Server IP
 	ip: process.env.IP || '0.0.0.0',
 
+  userRoles: ['user','admin', 'super admin'],
+
+  session: 'qQ5MxCjb98iBwpIJPWWWPfl2UCHujrP7od5UiUrohaCsf6a4fYBUn0v6tmOAimh'
 }
 // Server base url
 config.baseUrl = 'http://' + config.ip + ':' + config.port;

@@ -69,6 +69,16 @@ describe('test signup: POST /api/users', function () {
 		});
 	});
 
+	it('test with duplicate email', function (done) {
+		var testForm = genUserForm();
+		request.post({url:testUrl, form: testForm}, function next(err, res, body) {
+			request.post({url:testUrl, form: testForm}, function next(err, res, body) {
+				//TODO check
+				done();
+			});
+		});
+	});
+
 	it('test empty username', function (done) {
 		var testForm = genUserForm();
 		delete testForm['username'];
@@ -169,10 +179,11 @@ describe('test update', function () {
   });
 
 	it('test successful', function (done) {
-		var testUpdateUrl = testUrl + '/' + testUser['id'] + '/password';
+		var testUpdateUrl = testUrl + '/' + testUser['id'] + '/setting';
 		var testForm = {
 			oldPassword: RIGHT_PASSWORD,
-			newPassword: 'has changed'
+			newPassword: 'has changed',
+			confirmPassword: 'has changed'
 		}
 
 		var headers = {
@@ -188,15 +199,16 @@ describe('test update', function () {
 	});
 
 	it('test without token', function (done) {
-		var testUpdateUrl = testUrl + '/' + testUser['id'] + '/password';
+		var testUpdateUrl = testUrl + '/' + testUser['id'] + '/setting';
 		var testForm = {
 			oldPassword: RIGHT_PASSWORD,
-			newPassword: 'has changed'
+			newPassword: 'has changed',
+			confirmPassword: 'has changed'
 		}
 
 		request.put({url:testUpdateUrl, form: testForm}, function next(err, res, body) {
 			body = JSON.parse(body);
-			assert.equal(401, res.statusCode)
+			assert.equal(403, res.statusCode)
 			assert.property(body, 'error');
 			done();
 		});
@@ -239,11 +251,82 @@ describe('test reset request', function () {
 
 		request.post({url:testUrl, form: testForm}, function next(err, res, body) {
 			body = JSON.parse(body);
-			console.log(res.statusCode);
 			assert.property(body, 'error');
 			assert.equal(404, res.statusCode)
 			done();
 		});
 	});
+});
+
+
+
+describe('test get user', function () {
+	var testUrl = config.baseUrl + '/api/user';
+	var testUser;
+	var adminToken = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJfaWQiOiI1NmM2NmYyZTRkZWI0MmYxMTgwYTkxMzciLCJyb2xlIjoiYWRtaW4iLCJ1c2VybmFtZSI6ImFkbWluIiwiaWF0IjoxNDU1ODQ3MDU5LCJleHAiOjE0NTU4NjUwNTl9.osIREE8E1jozBC2r7lgG2R3KC0uHm7vUxL7T5D6xINA';
+
+	beforeEach(function (done) {
+		testUser = genUserForm();
+
+		signup(testUser, function (user) {
+			testUser.id = user.id;
+			testUser.token = user.token;
+			done()
+		});
+  });
+
+	it('test successful', function (done) {
+		var testUpdateUrl = testUrl + '/' + testUser.id;
+		var testForm = {
+			isActivated: true
+		}
+		var headers = {
+	    'authorization': adminToken
+		}
+
+		request.put({url:testUpdateUrl, form: testForm, headers: headers}, function next(err, res, body) {
+			body = JSON.parse(body);
+			assert.equal(200, res.statusCode)
+			for (var key in testForm)
+			{
+				assert.equal(testForm[key], body[key])
+			}
+			done();
+		});
+	});
+
+	it('test with user token', function (done) {
+		var testUpdateUrl = testUrl + '/' + testUser.id;
+		var testForm = {
+			isActivated: true
+		}
+		var headers = {
+	    'authorization': testUser.token,
+		}
+
+		request.put({url:testUpdateUrl, form: testForm, headers: headers}, function next(err, res, body) {
+			body = JSON.parse(body);
+			assert.equal(403, res.statusCode)
+			done();
+		});
+	});
+
+	it('test without token', function (done) {
+		var testUpdateUrl = testUrl + '/' + testUser.id;
+		var testForm = {
+			isActivated: true
+		}
+
+		request.put({url:testUpdateUrl, form: testForm}, function next(err, res, body) {
+			body = JSON.parse(body);
+			assert.equal(403, res.statusCode)
+			done();
+		});
+	});
 	
 });
+
+// admin id
+// 56c66f2e4deb42f1180a9137
+// admin token
+// eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJfaWQiOiI1NmM2NmYyZTRkZWI0MmYxMTgwYTkxMzciLCJyb2xlIjoidXNlciIsInVzZXJuYW1lIjoiYWRtaW4iLCJpYXQiOjE0NTU4NDUxNjYsImV4cCI6MTQ1NTg2MzE2Nn0.kewOvI07oanrcLPiHFmrncOSWBjgcAEOkTZChVfG_1o

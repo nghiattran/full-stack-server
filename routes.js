@@ -14,6 +14,6 @@ exports = module.exports = function(app) {
 	//  .get(errors[404]);
 
 	app.all('*', function(req, res) {
-		res.json({error: '404'});
+		return res.status(200).json({error: 'Page not found.'});
 	})
 }

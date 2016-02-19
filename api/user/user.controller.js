@@ -34,7 +34,7 @@ function handleError(res, statusCode) {
  * @return {[type]}            [description]
  */
 function validationError(res, statusCode) {
-  statusCode = statusCode || 422;
+  statusCode = statusCode || 500;
   return function(err) {
     res.status(statusCode).json({error: err});
   }
@@ -53,23 +53,15 @@ controller.signup = function (req, res, next) {
 		newUser.password = newUser.encryptPassword(newUser.password);
 	};
 
-	newUser.saveAsync(function(err, results)
-	{
-		if (err) {
-			if (err.code === 11000) {
-				return res.json({
-					error: {message: 'This email has been used.'}, 
-					code: err.code});
-			} 
-			else {
-				return res.json({
-					error: {message: err.message}, 
-					code: err.code});
-			}
-		}
-		
-		return res.json(controller.setUserReturnObject(results));
-	}).catch(handleError(res));
+	newUser.saveAsync()
+	.then(function(result)
+	{		
+		// For some reason if using callback, result is an object
+		// but if using promise, result is an array
+		return res.json(controller.setUserReturnObject(result[0]));
+	})
+	.catch(validationError(res))
+	.catch(handleError(res))
 }
 
 /**
@@ -114,6 +106,33 @@ controller.updateUser = function (req, res, next) {
 }
 
 /**
+ * This method handles update password requests 
+ * @param  {[type]}   req  request object
+ * @param  {[type]}   res  response object
+ * @param  {Function} next callback for what to do next
+ * @return {[type]}        
+ */
+controller.updateUserAdmin = function (req, res, next) {
+	var userId = req.params.id;
+
+	// Get user info
+	User.findByIdAsync(userId)
+	.then(function (user) {
+
+		for(var key in user)
+		{
+			if (req.body[key] && typeof req.body[key] !== 'function') {
+				user[key] = req.body[key];
+			}
+		}
+
+		return user.saveAsync(function(err, result){
+			return res.json(result);
+		})
+	}).catch(validationError(res))
+}
+
+/**
  * This method creates reset token for forgot password requests 
  * @param  {[type]}   req  request object
  * @param  {[type]}   res  response object
@@ -129,8 +148,9 @@ function createResetToken (req, res, next) {
 			user.resetPasswordToken = crypto.randomBytes(20).toString('hex');;
       user.resetPasswordExpires = Date.now() + 3600000;
 
-			return user.saveAsync(function(err, result){
-				next(err, user);
+      // it smells here
+			return user.saveAsync(function(err, user){
+				next(req, res, user);
 			}).catch(validationError(res))
 		} else {
 			return res.status(404).json({'error': 'No account with that email address exists.'})
@@ -138,14 +158,15 @@ function createResetToken (req, res, next) {
 	}).catch(validationError(res))
 }
 
+
+// TODO add sendgrid
 /**
  * This function send reset email to user
  * @param  {[type]} user user object
  * @return {[type]}      [description]
  */
-function sendResetEmail (user) {
-
-	// return res.json({token: user.resetPasswordToken, email: user.email})
+function sendResetEmail (req, res, user) {
+	return res.status(200).json({message: 'Email has been sent.'});
 }
 
 /**
@@ -156,9 +177,7 @@ function sendResetEmail (user) {
  * @return {[type]}        
  */
 controller.handleResetRequest = function (req, res, next) {
-	return createResetToken(req, res, function (err, user) {
-		return res.status(200).json({message: 'Email has been sent.'});
-	})
+	return createResetToken(req, res, sendResetEmail);
 }
 
 /**
@@ -207,3 +226,8 @@ controller.setUserReturnObject = function (user){
 		id : user._id
 	}
 }
+
+// export function getUsers (req, res, next) {
+// 	var userId = req.params.id;
+// 	// User.findAsync(res)
+// }
