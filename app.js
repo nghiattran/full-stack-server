@@ -25,8 +25,7 @@ var server = http.createServer(app)
 // Start server
 function startServer() {
 	server.listen(config.port, config.ip, function() {
-    log.info('Express', 'Listening on port %s', app.get('port'));
-		// console.log('Express server listening on %d, in %s mode', config.port, app.get('env'));
+		log.info('Express server listening on %d, in %s mode', config.port, app.get('env'));
 	});
 }
 
