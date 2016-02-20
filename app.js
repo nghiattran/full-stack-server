@@ -29,7 +29,7 @@ function startServer() {
 	});
 }
 
-setImmediate(startServer);
+startServer();
 
 // Expose app
 exports = module.exports = app;

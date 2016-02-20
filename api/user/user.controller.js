@@ -1,10 +1,10 @@
 'use strict';
 
 var mongoose = require('bluebird').promisifyAll(require('mongoose'));
-var User = require('./user.model')
+var User = require('./user.model');
 var mongoose = require('mongoose');
 var _ = require('underscore');
-var signToken = require('../auth/auth.service').signToken
+var signToken = require('../auth/auth.service').signToken;
 var crypto = require('crypto');
 
 var controller = exports;
@@ -18,10 +18,10 @@ var controller = exports;
 function handleError(res, statusCode) {
 	statusCode = statusCode || 500;
 	return function(err) {
-		var error = {}
+		var error = {};
 		for (var field in err.errors)
 		{
-			error[field] = err.errors[field]['message'];
+			error[field] = err.errors[field].message;
 		}
 		res.status(statusCode).json({error: error});
 	};
@@ -37,7 +37,7 @@ function validationError(res, statusCode) {
   statusCode = statusCode || 500;
   return function(err) {
     res.status(statusCode).json({error: err});
-  }
+  };
 }
 
 /**
@@ -51,7 +51,7 @@ controller.signup = function (req, res, next) {
 	var newUser = new User(req.body);
 	if (newUser.password) {
 		newUser.password = newUser.encryptPassword(newUser.password);
-	};
+	}
 
 	newUser.saveAsync()
 	.then(function(result)
@@ -60,9 +60,8 @@ controller.signup = function (req, res, next) {
 		// but if using promise, result is an array
 		return res.json(controller.setUserReturnObject(result[0]));
 	})
-	.catch(validationError(res))
-	.catch(handleError(res))
-}
+	.catch(validationError(res));
+};
 
 /**
  * This method handles update password requests 
@@ -81,7 +80,7 @@ controller.updateUser = function (req, res, next) {
 		return res.status(500).json({
 			message:"New password and confirm password don't match"
 		});
-	};
+	}
 
 	// Get user info
 	User.findByIdAsync(userId)
@@ -97,13 +96,13 @@ controller.updateUser = function (req, res, next) {
 			return user.saveAsync(function(err, result){
 				return res.json(controller.setUserReturnObject(result));
 			})
-			.catch(validationError(res))
+			.catch(validationError(res));
 
 		} else {
-			return res.status(404).json({'error': 'Wrong password.'})
+			return res.status(404).json({'error': 'Wrong password.'});
     }
-	}).catch(validationError(res))
-}
+	}).catch(validationError(res));
+};
 
 /**
  * This method handles update password requests 
@@ -128,9 +127,9 @@ controller.updateUserAdmin = function (req, res, next) {
 
 		return user.saveAsync(function(err, result){
 			return res.json(result);
-		})
-	}).catch(validationError(res))
-}
+		});
+	}).catch(validationError(res));
+};
 
 /**
  * This method creates reset token for forgot password requests 
@@ -145,17 +144,17 @@ function createResetToken (req, res, next) {
 	User.findOneAsync({ 'email' :  email }).then(function (user) {
 		if (user) {
 
-			user.resetPasswordToken = crypto.randomBytes(20).toString('hex');;
+			user.resetPasswordToken = crypto.randomBytes(20).toString('hex');
       user.resetPasswordExpires = Date.now() + 3600000;
 
       // it smells here
 			return user.saveAsync(function(err, user){
 				next(req, res, user);
-			}).catch(validationError(res))
+			}).catch(validationError(res));
 		} else {
-			return res.status(404).json({'error': 'No account with that email address exists.'})
+			return res.status(404).json({'error': 'No account with that email address exists.'});
 		}
-	}).catch(validationError(res))
+	}).catch(validationError(res));
 }
 
 
@@ -178,7 +177,7 @@ function sendResetEmail (req, res, user) {
  */
 controller.handleResetRequest = function (req, res, next) {
 	return createResetToken(req, res, sendResetEmail);
-}
+};
 
 /**
  * This method handles reset password requests 
@@ -194,27 +193,27 @@ controller.handleResetPassword = function (req, res, next) {
 
 	if (newPass !== conPass) {
 		return res.status(400).json({error: "Two passwords don't match."});
-	};
+	}
 
 	var params = { 
 		resetPasswordToken: resetToken, 
 		resetPasswordExpires: { $gt: Date.now() }
-	}
+	};
 
 	User.findOne(params)
 		.then(function (user) {
 			if (user) {
-				user.resetPasswordToken = crypto.randomBytes(20).toString('hex');;
+				user.resetPasswordToken = crypto.randomBytes(20).toString('hex');
 	      user.resetPasswordExpires = Date.now() + 3600000;
 
 				return user.saveAsync(function(err, result){
-					return res.status(200).json({'message': 'Success! Your password has been changed.'})
-				}).catch(validationError(res))
+					return res.status(200).json({'message': 'Success! Your password has been changed.'});
+				}).catch(validationError(res));
 			} else {
-				return res.status(400).json({'error': 'Password reset token is invalid or has expired.'})
+				return res.status(400).json({'error': 'Password reset token is invalid or has expired.'});
 			}
-		})
-}
+		});
+};
 
 /**
  * This method creates a access token for client
@@ -224,8 +223,8 @@ controller.setUserReturnObject = function (user){
 	return {
 		token: signToken(user._id, user.role, user.username),
 		id : user._id
-	}
-}
+	};
+};
 
 // export function getUsers (req, res, next) {
 // 	var userId = req.params.id;

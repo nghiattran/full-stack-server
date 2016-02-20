@@ -4,11 +4,7 @@ var jwt = require('jsonwebtoken');
 var expressJwt = require('express-jwt');
 var compose = require('composable-middleware');
 var config = require('../../config/environment');
-
-
 var service = exports;
-
-var session = 'qQ5MxCjb98iBwpIJPWWWPfl2UCHujrP7od5UiUrohaCsf6a4fYBUn0v6tmOAimh';
 
 /**
  * [signToken: create a jwt token]
@@ -17,27 +13,27 @@ var session = 'qQ5MxCjb98iBwpIJPWWWPfl2UCHujrP7od5UiUrohaCsf6a4fYBUn0v6tmOAimh';
  * @return {[str]}      [jwt token]
  */
 service.signToken = function(id, role, username) {
-	return jwt.sign({ _id: id, role: role, username: username }, session, {
+	return jwt.sign({ _id: id, role: role, username: username }, config.session, {
 		expiresIn: 60 * 60 * 5
 	});
-}
+};
 
 /**
  * [verifyToken description]
  * @param  {[Str]} token [Authorization token]
  */
 var verifyToken = function (req, res, next) {
-	return jwt.verify(req.headers.authorization, session, function(err, user) {
+	return jwt.verify(req.headers.authorization, config.session, function(err, user) {
     if (err) {
-      return res.status(403).json({error: 'Forbidden'});
-    };
+      return res.status(403).json({error: err.message});
+    }
     req.user = user;
-    return next()
+    return next();
   });
-}
+};
 
 var validateJwt = expressJwt({
-  secret: session
+  secret: config.session
 });
 
 /**
@@ -46,8 +42,8 @@ var validateJwt = expressJwt({
  */
 service.isAuthenticated = function () {
   return compose()
-    .use(verifyToken)
-}
+    .use(verifyToken);
+};
 
 /**
  * Checks if the user role meets the minimum requirements of the route
@@ -60,10 +56,11 @@ service.hasRole = function (roleRequired) {
   return compose()
     .use(service.isAuthenticated())
     .use(function (req, res, next) {
+
       if (config.userRoles.indexOf(req.user.role) >= config.userRoles.indexOf(roleRequired)) {
         next();
       } else {
         res.status(403).json({error: 'Forbidden'});
       }
     });
-}
+};

@@ -9,8 +9,8 @@ var testUtil = require('../../config/test.util');
  * Test if the server is up
  */
 
-describe('test', function () {
-	it('should return 200', function (done) {
+describe('test connection', function () {
+	it('test successful', function (done) {
 		request
 			.get(config.baseUrl)
 			.on('response', function(res) {
@@ -19,7 +19,7 @@ describe('test', function () {
 			})
 			.on('error', function(err) {
 				assert.ifError(err);
-			})
+			});
 	});
 });
 
@@ -36,41 +36,41 @@ describe('test update', function () {
 		testUtil.signup(testUser, function (user) {
 			testUser.id = user.id;
 			testUser.token = user.token;
-			done()
+			done();
 		});
   });
 
 	it('test successful', function (done) {
-		var testUpdateUrl = testUrl + '/' + testUser['id'] + '/setting';
+		var testUpdateUrl = testUrl + '/' + testUser.id + '/setting';
 		var testForm = {
 			oldPassword: testUtil.RIGHT_PASSWORD,
 			newPassword: 'has changed',
 			confirmPassword: 'has changed'
-		}
+		};
 
 		var headers = {
 	    'authorization': testUser.token,
-		}
+		};
 
 		request.put({url:testUpdateUrl, form: testForm, headers:headers}, function next(err, res, body) {
 			body = JSON.parse(body);
 			assert.property(body, 'token');
-			assert.equal(200, res.statusCode)
+			assert.equal(200, res.statusCode);
 			done();
 		});
 	});
 
 	it('test without token', function (done) {
-		var testUpdateUrl = testUrl + '/' + testUser['id'] + '/setting';
+		var testUpdateUrl = testUrl + '/' + testUser.id + '/setting';
 		var testForm = {
 			oldPassword: testUtil.RIGHT_PASSWORD,
 			newPassword: 'has changed',
 			confirmPassword: 'has changed'
-		}
+		};
 
 		request.put({url:testUpdateUrl, form: testForm}, function next(err, res, body) {
 			body = JSON.parse(body);
-			assert.equal(403, res.statusCode)
+			assert.equal(403, res.statusCode);
 			assert.property(body, 'error');
 			done();
 		});
@@ -90,19 +90,19 @@ describe('test reset request', function () {
 		testUtil.signup(testUser, function (user) {
 			testUser.id = user.id;
 			testUser.token = user.token;
-			done()
+			done();
 		});
   });
 
 	it('test successful', function (done) {
 		var testForm = {
 			email: testUser.email
-		}
+		};
 
 		request.post({url:testUrl, form: testForm}, function next(err, res, body) {
 			body = JSON.parse(body);
 			assert.property(body, 'message');
-			assert.equal(200, res.statusCode)
+			assert.equal(200, res.statusCode);
 			done();
 		});
 	});
@@ -110,7 +110,7 @@ describe('test reset request', function () {
 	it('test with wrong email', function (done) {
 		var testForm = {
 			email: "email"
-		}
+		};
 
 		request.post({url:testUrl, form: testForm}, function next(err, res, body) {
 			body = JSON.parse(body);

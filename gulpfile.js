@@ -5,43 +5,40 @@ var runSequence = require('run-sequence');
 var istanbul = require('gulp-istanbul');
 var cover = require('gulp-coverage');
 var connect = require('gulp-connect');
+var jshint = require('gulp-jshint');
+var stylish = require('jshint-stylish');
 
 gulp.task('start', function () {
 	nodemon({
 		script: 'app.js',
 		ext: 'js html',
 		env: { 'NODE_ENV': 'dev' }
-	})
+	}).on('change', function (argument) {
+    // body...
+  })
 })
-
-gulp.task('test::user', function () {
-	return gulp.src('api/**/*.spec.js', {read: false})
-		.pipe(mocha({reporter: 'nyan'}))
-		.on('error', err => {
-      console.log(err)
-    }).on('end', () => {
-      process.exit();
-    });
-});
 
 gulp.task('test', function cb () {
   process.env.NODE_ENV = 'test';
   process.env.PORT = 8000;
-  connect.server({});
 
-	runSequence(
-    'test::user',
-    cb);
-
-  connect.serverClose();
+  return gulp.src('api/**/*.spec.js', {read: false})
+    .pipe(mocha())
+    .on('error', (err) => {
+      console.log(err)
+      process.exit();
+    })
+    .on('end', () => {
+      process.exit();
+    });
 });
 
 
 gulp.task('pre-cover', function () {
-  return gulp.src(['api/**/*.js'])
+  // !(*spec).js : cover all files other then *spec.js files
+  return gulp.src(['api/**/!(*spec).js'])
     .pipe(istanbul())
-    .pipe(istanbul.hookRequire())
-    .pipe(gulp.dest('test-tmp/'));
+    .pipe(istanbul.hookRequire());
 });
 
 gulp.task('cover', ['pre-cover'], function () {
@@ -50,12 +47,12 @@ gulp.task('cover', ['pre-cover'], function () {
   return gulp.src('api/**/*.spec.js', {read: false})
     .pipe(mocha())
     .pipe(istanbul.writeReports(
-        {
-          dir: './coverage',
-          reporters: ['html' ],
-          reportOpts: { dir: './coverage' },
-        }
-      ))
+      {
+        dir: './coverage',
+        reporters: ['html', 'text', 'text-summary'],
+        reportOpts: { dir: './coverage' },
+      }
+    ))
     .on('error', err => {
       console.log(err);
       process.exit();
@@ -65,6 +62,9 @@ gulp.task('cover', ['pre-cover'], function () {
     });
 });
 
-gulp.task('end-server', function () {
-  process.exit();
+
+gulp.task('lint', function() {
+  return gulp.src('api/**/*.js')
+    .pipe(jshint())
+    .pipe(jshint.reporter('jshint-stylish'));
 });

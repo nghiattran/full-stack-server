@@ -43,11 +43,7 @@ exports = module.exports = function (app) {
     next();
 	});
 
-  if ('production' === env) {
-    app.use(morgan('dev'));
-  }
-
-  if ('dev' === env || 'test' === env) {
+  if ('dev' === env || 'production' === env) {
     app.use(morgan('dev'));
   }
 }
