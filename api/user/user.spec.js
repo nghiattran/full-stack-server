@@ -1,5 +1,5 @@
 'use strict';
-var crypto = require('crypto');
+
 var config = require('../../config/environment');
 var assert = require('chai').assert;
 var request = require('request');
@@ -99,7 +99,7 @@ describe('test reset request', function () {
 			email: testUser.email
 		};
 
-		request.post({url:testUrl, form: testForm}, function next(err, res, body) {
+		request.post({url : testUrl, form: testForm}, function next(err, res, body) {
 			body = JSON.parse(body);
 			assert.property(body, 'message');
 			assert.equal(200, res.statusCode);
@@ -112,10 +112,10 @@ describe('test reset request', function () {
 			email: "email"
 		};
 
-		request.post({url:testUrl, form: testForm}, function next(err, res, body) {
+		request.post({url : testUrl, form: testForm}, function next(err, res, body) {
 			body = JSON.parse(body);
 			assert.property(body, 'error');
-			assert.equal(404, res.statusCode)
+			assert.equal(404, res.statusCode);
 			done();
 		});
 	});
@@ -124,76 +124,199 @@ describe('test reset request', function () {
 /**
  * 	Test cases for api/user endpoint
  */
-
-describe('test get user', function () {
-	var testUrl = config.baseUrl + '/api/user';
-	var testUser;
+describe('test admin', function () {
 	var adminToken;
-
 	before(function (done) {
 		testUtil.login(testUtil.ADMIN, function (admin) {
 			adminToken = admin.token;
 			done();
-		})
-	})
-
-	beforeEach(function (done) {
-		testUser = testUtil.genUserForm();
-
-		testUtil.signup(testUser, function (user) {
-			testUser.id = user.id;
-			testUser.token = user.token;
-			done()
 		});
-  });
+	});
 
-	it('test successful', function (done) {
-		var testUpdateUrl = testUrl + '/' + testUser.id;
-		var testForm = {
-			isActivated: true
-		}
-		var headers = {
-	    'authorization': adminToken
-		}
+	describe('test update user', function () {
+		var testUrl = config.baseUrl + '/api/user';
+		var testUser;
 
-		request.put({url:testUpdateUrl, form: testForm, headers: headers}, function next(err, res, body) {
-			body = JSON.parse(body);
-			assert.equal(200, res.statusCode)
-			for (var key in testForm)
-			{
-				assert.equal(testForm[key], body[key])
+		beforeEach(function (done) {
+			testUser = testUtil.genUserForm();
+
+			testUtil.signup(testUser, function (user) {
+				testUser.id = user.id;
+				testUser.token = user.token;
+				done();
+			});
+	  });
+
+		it('test successful', function (done) {
+			var testUpdateUrl = testUrl + '/' + testUser.id;
+			var testForm = {
+				isActivated: true
+			};
+			var headers = {
+		    'authorization': adminToken
+			};
+
+			request.put({url:testUpdateUrl, form: testForm, headers: headers}, function next(err, res, body) {
+				body = JSON.parse(body);
+				assert.equal(200, res.statusCode);
+				for (var key in testForm)
+				{
+					assert.equal(testForm[key], body[key]);
+				}
+				done();
+			});
+		});
+
+		it('test with unauthorized token', function (done) {
+			var testUpdateUrl = testUrl + '/' + testUser.id;
+			var testForm = {
+				isActivated: true
+			};
+			var headers = {
+		    'authorization': testUser.token,
+			};
+
+			request.put({url:testUpdateUrl, form: testForm, headers: headers}, function next(err, res, body) {
+				body = JSON.parse(body);
+				assert.equal(403, res.statusCode);
+				done();
+			});
+		});
+
+		it('test without token', function (done) {
+			var testUpdateUrl = testUrl + '/' + testUser.id;
+			var testForm = {
+				isActivated: true
+			};
+
+			request.put({url:testUpdateUrl, form: testForm}, function next(err, res, body) {
+				body = JSON.parse(body);
+				assert.equal(403, res.statusCode);
+				done();
+			});
+		});
+	});
+
+
+	describe('test get users', function () {
+		var testUrl = config.baseUrl + '/api/user';
+		var testUser;
+
+		it('test successful: default limit', function (done) {
+			var headers = {
+		    'authorization': adminToken
+			};
+
+			request.get({url : testUrl, headers: headers}, function next(err, res, body) {
+				body = JSON.parse(body);
+				assert.equal(body.results.length, 100);
+				assert.equal(res.statusCode, 200);
+				done();
+			});
+		});
+
+		it('test successful: limit 50', function (done) {
+			var headers = {
+		    'authorization': adminToken
+			};
+
+			var params = {
+				limit: 50
 			}
-			done();
+
+			request.get({url : testUrl, qs : params, headers: headers}, function next(err, res, body) {
+				body = JSON.parse(body);
+				assert.equal(body.results.length, 50);
+				assert.equal(res.statusCode, 200);
+				done();
+			});
+		});
+
+		it('test successful: select all', function (done) {
+			var headers = {
+		    'authorization': adminToken
+			};
+
+			var params = {
+				limit: 1
+			}
+
+			request.get({url : testUrl, qs : params, headers: headers}, function next(err, res, body) {
+				body = JSON.parse(body);
+				assert.isAbove(Object.keys(body.results[0]).length, 1);
+				assert.equal(res.statusCode, 200);
+				done();
+			});
+		});
+
+		it('test successful: select one field', function (done) {
+			var headers = {
+		    'authorization': adminToken
+			};
+
+			var params = {
+				limit: 1,
+				select: {
+					_id: false,
+					username: true
+				}
+			}
+
+			request.get({url : testUrl, qs : params, params:params, headers: headers}, function next(err, res, body) {
+				body = JSON.parse(body);
+				assert.equal(Object.keys(body.results[0]).length, 1);
+				assert.equal(res.statusCode, 200);
+				done();
+			});
 		});
 	});
 
-	it('test with unauthorized token', function (done) {
-		var testUpdateUrl = testUrl + '/' + testUser.id;
-		var testForm = {
-			isActivated: true
-		}
-		var headers = {
-	    'authorization': testUser.token,
-		}
+	describe('test get users', function () {
+		var testUrl = config.baseUrl + '/api/user';
+		var testUser;
 
-		request.put({url:testUpdateUrl, form: testForm, headers: headers}, function next(err, res, body) {
-			body = JSON.parse(body);
-			assert.equal(403, res.statusCode)
-			done();
+		beforeEach(function (done) {
+			testUser = testUtil.genUserForm();
+			testUtil.signup(testUser, function (user) {
+				testUser.id = user.id;
+				testUser.token = user.token;
+				done();
+			});
+	  });
+
+		it('test successful: default limit', function (done) {
+			var testGetUrl = testUrl + '/' + testUser.id;
+			var headers = {
+		    'authorization': adminToken
+			};
+
+			request.get({url : testGetUrl, headers: headers}, function next(err, res, body) {
+				body = JSON.parse(body);
+				assert.equal(body.results._id, testUser.id);
+				assert.equal(res.statusCode, 200);
+				done();
+			});
+		});
+
+		it('test successful: select one field', function (done) {
+			var testGetUrl = testUrl + '/' + testUser.id;
+			var headers = {
+		    'authorization': adminToken
+			};
+			var params = {
+				limit: 1,
+				select: {
+					_id: false,
+					username: true
+				}
+			}
+
+			request.get({url : testGetUrl, qs : params, params:params, headers: headers}, function next(err, res, body) {
+				body = JSON.parse(body);
+				assert.equal(Object.keys(body.results).length, 1);
+				assert.equal(res.statusCode, 200);
+				done();
+			});
 		});
 	});
-
-	it('test without token', function (done) {
-		var testUpdateUrl = testUrl + '/' + testUser.id;
-		var testForm = {
-			isActivated: true
-		}
-
-		request.put({url:testUpdateUrl, form: testForm}, function next(err, res, body) {
-			body = JSON.parse(body);
-			assert.equal(403, res.statusCode)
-			done();
-		});
-	});
-	
 });

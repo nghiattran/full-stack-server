@@ -14,7 +14,9 @@ var config = {
 
   userRoles: ['user','admin', 'super admin'],
 
-  session: 'qQ5MxCjb98iBwpIJPWWWPfl2UCHujrP7od5UiUrohaCsf6a4fYBUn0v6tmOAimh'
+  session: 'qQ5MxCjb98iBwpIJPWWWPfl2UCHujrP7od5UiUrohaCsf6a4fYBUn0v6tmOAimh',
+
+  database: 'test'
 }
 // Server base url
 config.baseUrl = 'http://' + config.ip + ':' + config.port;

@@ -32,10 +32,6 @@ var verifyToken = function (req, res, next) {
   });
 };
 
-var validateJwt = expressJwt({
-  secret: config.session
-});
-
 /**
  * isAuthenticated: check if access token is valid
  * @return {Boolean} [description]

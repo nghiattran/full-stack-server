@@ -1,13 +1,12 @@
 'use strict';
 
-var mongoose = require('bluebird').promisifyAll(require('mongoose'));
 var User = require('./user.model');
-var mongoose = require('mongoose');
-var _ = require('underscore');
 var signToken = require('../auth/auth.service').signToken;
 var crypto = require('crypto');
-
+var url = require('url');
 var controller = exports;
+var qs = require('qs');
+var _ = require('lodash');
 
 /**
  * This function is a callback for handling errors
@@ -47,7 +46,7 @@ function validationError(res, statusCode) {
  * @param  {Function} next callback for what to do next
  * @return {[type]}        
  */
-controller.signup = function (req, res, next) {
+controller.signup = function (req, res) {
 	var newUser = new User(req.body);
 	if (newUser.password) {
 		newUser.password = newUser.encryptPassword(newUser.password);
@@ -70,7 +69,7 @@ controller.signup = function (req, res, next) {
  * @param  {Function} next callback for what to do next
  * @return {[type]}        
  */
-controller.updateUser = function (req, res, next) {
+controller.updateUser = function (req, res) {
 	var userId = req.user._id;
 	var oldPass = String(req.body.oldPassword);
 	var newPass = String(req.body.newPassword);
@@ -111,7 +110,7 @@ controller.updateUser = function (req, res, next) {
  * @param  {Function} next callback for what to do next
  * @return {[type]}        
  */
-controller.updateUserAdmin = function (req, res, next) {
+controller.updateUserAdmin = function (req, res) {
 	var userId = req.params.id;
 
 	// Get user info
@@ -226,7 +225,52 @@ controller.setUserReturnObject = function (user){
 	};
 };
 
-// export function getUsers (req, res, next) {
-// 	var userId = req.params.id;
-// 	// User.findAsync(res)
-// }
+controller.getUsers = function (req, res, next) {
+	var param = req.params.where || {};
+	if (req.params && req.params.id) {
+		param = {
+			_id: req.params.id,
+		}
+	}
+
+	var urlParts = url.parse(req.url, true);
+	var query = qs.parse(url.parse(req.url, true).query);
+	query.select = mongoosizeQueryString(query.select);
+
+	User.find(query.where || {})
+		.limit(query.limit || 100)
+		.select(query.select || null)
+		.then(function (results) {
+			return res
+				.status(200)
+				.json({results: results});
+		}).catch(handleError(res));
+};
+
+controller.getUser = function (req, res, next) {
+	var userId = req.params.id;
+
+	var urlParts = url.parse(req.url, true);
+	var query = qs.parse(url.parse(req.url, true).query);
+	query.select = mongoosizeQueryString(query.select);
+	
+	User.findById(userId)
+		.select(query.select || null)
+		.then(function (results) {
+			return res
+				.status(200)
+				.json({results: results});
+		}).catch(handleError(res));
+};
+
+
+var mongoosizeQueryString = function (qs) {
+	_(qs).forEach(function (value, key) {
+		if (typeof value === 'object') {
+			qs[key] = mongoosizeQueryString(value);
+		} else if (typeof value === 'string') {
+			qs[key] = value == 'true';
+		}
+	})
+	return qs;
+}

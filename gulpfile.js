@@ -7,6 +7,7 @@ var cover = require('gulp-coverage');
 var connect = require('gulp-connect');
 var jshint = require('gulp-jshint');
 var stylish = require('jshint-stylish');
+var fixmyjs = require("gulp-fixmyjs");
 
 gulp.task('start', function () {
 	nodemon({
@@ -58,7 +59,7 @@ gulp.task('cover', ['pre-cover'], function () {
       process.exit();
     })
     .on('end', () => {
-        process.exit();
+      process.exit();
     });
 });
 
@@ -67,4 +68,16 @@ gulp.task('lint', function() {
   return gulp.src('api/**/*.js')
     .pipe(jshint())
     .pipe(jshint.reporter('jshint-stylish'));
+});
+
+gulp.task('fix', function() {
+  return gulp.src("./api/user/*.js")
+    .pipe(fixmyjs())
+    .pipe(gulp.dest("./api/user"));
+});
+
+gulp.task('fixjs', function() {
+  return gulp.src("./api/user/*.js")
+    .pipe(fixmyjs())
+    .pipe(gulp.dest("./www/"));
 });

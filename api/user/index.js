@@ -13,6 +13,7 @@ router.post('/reset/:id', controller.handleResetPassword);
 
 router.put('/:id/setting', auth.hasRole('user'), controller.updateUser);
 
-// router.get('/', auth.hasRole('admin'), controller.getUsers);
+router.get('/', auth.hasRole('admin'), controller.getUsers);
+router.get('/:id', auth.hasRole('admin'), controller.getUser);
 router.put('/:id', auth.hasRole('admin'), controller.updateUserAdmin);
 exports = module.exports = router;

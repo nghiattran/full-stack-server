@@ -8,7 +8,7 @@ var config = require('./config/environment');
 var mongoose = require('mongoose');
 
 // connect to mongo
-mongoose.connect('mongodb://localhost/test');
+mongoose.connect('mongodb://localhost/' + config.database);
 
 // create app object
 var app = express();
@@ -25,7 +25,7 @@ var server = http.createServer(app)
 // Start server
 function startServer() {
 	server.listen(config.port, config.ip, function() {
-		log.info('Express server listening on %d, in %s mode', config.port, app.get('env'));
+		log.info('Express server listening on ' + config.port + ', in ' + app.get('env') + ' mode');
 	});
 }
 
