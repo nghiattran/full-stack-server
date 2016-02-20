@@ -29,9 +29,7 @@ function startServer() {
 	});
 }
 
-if (process.env.NODE_ENV === 'dev') {
-	setImmediate(startServer);
-};
+setImmediate(startServer);
 
 // Expose app
 exports = module.exports = app;

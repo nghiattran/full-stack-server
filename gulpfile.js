@@ -4,6 +4,7 @@ var mocha = require('gulp-mocha');
 var runSequence = require('run-sequence');
 var istanbul = require('gulp-istanbul');
 var cover = require('gulp-coverage');
+var connect = require('gulp-connect');
 
 gulp.task('start', function () {
 	nodemon({
@@ -14,19 +15,25 @@ gulp.task('start', function () {
 })
 
 gulp.task('test::user', function () {
-	return gulp.src('api/user/user.spec.js', {read: false})
+	return gulp.src('api/**/*.spec.js', {read: false})
 		.pipe(mocha({reporter: 'nyan'}))
 		.on('error', err => {
-            console.log(err)
-        }).on('end', () => {
-            process.exit();
-        });
+      console.log(err)
+    }).on('end', () => {
+      process.exit();
+    });
 });
 
 gulp.task('test', function cb () {
-	process.env.NODE_ENV = 'test';
-	process.env.PORT = 8000;
-	runSequence(['test::user'], cb);
+  process.env.NODE_ENV = 'test';
+  process.env.PORT = 8000;
+  connect.server({});
+
+	runSequence(
+    'test::user',
+    cb);
+
+  connect.serverClose();
 });
 
 
@@ -56,4 +63,8 @@ gulp.task('cover', ['pre-cover'], function () {
     .on('end', () => {
         process.exit();
     });
+});
+
+gulp.task('end-server', function () {
+  process.exit();
 });
