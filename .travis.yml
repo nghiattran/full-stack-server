@@ -6,8 +6,7 @@ node_js:
 services: mongodb
 
 before_script:
-
-  - mongo test --eval 'db.users.insert({"username":"admin","role": "admin","email"  :"admin@email.com","password":"jGl25bVBBBW96Qi9Te4V37Fnqchz/Eu4qB9vKrRIqRg="});'
+  - ./util/create-admin.sh
 
 after_success:
   - cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js && rm -rf ./coverage
