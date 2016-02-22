@@ -202,6 +202,17 @@ describe('test admin', function () {
 		var testUrl = config.baseUrl + '/api/user';
 		var testUser;
 
+		before(function (done) {
+			var i;
+			for (i = 0; i < 100; i++) {
+				testUtil.signup(testUser, function (user) {
+					if (i == 100) {
+						done();
+					}
+				});
+			};
+		});
+
 		it('test successful: default limit', function (done) {
 			var headers = {
 		    'authorization': adminToken
