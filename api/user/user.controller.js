@@ -53,13 +53,12 @@ controller.signup = function (req, res) {
 	}
 
 	newUser.saveAsync()
-	.then(function(result)
-	{		
-		// For some reason if using callback, result is an object
-		// but if using promise, result is an array
-		return res.json(controller.setUserReturnObject(result[0]));
-	})
-	.catch(validationError(res));
+		.then(function(result) {		
+			// For some reason if using callback, result is an object
+			// but if using promise, result is an array
+			return res.json(controller.setUserReturnObject(result[0]));
+		})
+		.catch(validationError(res));
 };
 
 /**

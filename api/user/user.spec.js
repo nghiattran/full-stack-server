@@ -203,10 +203,12 @@ describe('test admin', function () {
 		var testUser;
 
 		before(function (done) {
-			var i;
-			for (i = 0; i < 100; i++) {
+			var index = 0;
+			for (var i = 0; i < 100; i++) {
+				testUser = testUtil.genUserForm();
 				testUtil.signup(testUser, function (user) {
-					if (i == 100) {
+					index++;
+					if (index == 100) {
 						done();
 					}
 				});
@@ -226,18 +228,18 @@ describe('test admin', function () {
 			});
 		});
 
-		it('test successful: limit 50', function (done) {
+		it('test successful: limit 5', function (done) {
 			var headers = {
 		    'authorization': adminToken
 			};
 
 			var params = {
-				limit: 50
+				limit: 5
 			}
 
 			request.get({url : testUrl, qs : params, headers: headers}, function next(err, res, body) {
 				body = JSON.parse(body);
-				assert.equal(body.results.length, 50);
+				assert.equal(body.results.length, 5);
 				assert.equal(res.statusCode, 200);
 				done();
 			});

@@ -9,7 +9,7 @@ util.RIGHT_PASSWORD = 'password';
 util.WRONG_PASSWORD = 'wrong-password';
 util.LOGIN_RETURN_KEYS = ['token'];
 
-exports.ADMIN = {
+util.ADMIN = {
   username: 'admin',
   password: 'admin',
   email: 'admin@email.com'
