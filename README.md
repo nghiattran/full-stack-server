@@ -1,7 +1,7 @@
 # full-stack-server
 > Server service for fullstack package
 
-[![Build Status][travis-image]][travis-url] [![Dependency Status][daviddm-image]][daviddm-url] [![Coverage percentage][coveralls-image]][coveralls-url]
+[![Build Status][travis-image]][travis-url] [![Coverage percentage][coveralls-image]][coveralls-url]
 
 API layout
 
@@ -47,7 +47,5 @@ all
 
 [travis-image]: https://travis-ci.org/nghiattran/full-stack-server.svg?branch=master
 [travis-url]: https://travis-ci.org/nghiattran/full-stack-server
-[daviddm-image]: https://david-dm.org/nghiattran/full-stack-server.svg?theme=shields.io
-[daviddm-url]: https://david-dm.org/nghiattran/full-stack-server
 [coveralls-image]: https://coveralls.io/repos/nghiattran/full-stack-server/badge.svg
 [coveralls-url]: https://coveralls.io/r/nghiattran/full-stack-server

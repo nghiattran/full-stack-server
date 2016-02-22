@@ -50,7 +50,10 @@ gulp.task('cover', ['pre-cover'], function () {
     .pipe(istanbul.writeReports(
       {
         dir: './coverage',
-        reporters: ['html', 'text', 'text-summary'],
+        reporters: ['html', 'text', 'text-summary', 'lcov'],
+        reportOpts: {
+          lcov: {dir: 'lcovonly', file: 'lcov.info'}
+        },
         reportOpts: { dir: './coverage' },
       }
     ))
