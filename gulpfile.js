@@ -1,5 +1,5 @@
 var gulp = require('gulp');
-var nodemon = require('nodemon')
+var nodemon = require('gulp-nodemon')
 var mocha = require('gulp-mocha');
 var runSequence = require('run-sequence');
 var istanbul = require('gulp-istanbul');
