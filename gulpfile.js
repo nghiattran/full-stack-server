@@ -76,8 +76,4 @@ gulp.task('fix', function() {
     .pipe(gulp.dest("./api/user"));
 });
 
-gulp.task('fixjs', function() {
-  return gulp.src("./api/user/*.js")
-    .pipe(fixmyjs())
-    .pipe(gulp.dest("./www/"));
-});
+gulp.task('default', ['cover']);
