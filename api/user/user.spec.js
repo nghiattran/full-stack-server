@@ -284,7 +284,7 @@ describe('test admin', function () {
 		});
 	});
 
-	describe('test get users', function () {
+	describe('test get a user', function () {
 		var testUrl = config.baseUrl + '/api/user';
 		var testUser;
 
@@ -302,7 +302,6 @@ describe('test admin', function () {
 			var headers = {
 		    'authorization': adminToken
 			};
-
 			request.get({url : testGetUrl, headers: headers}, function next(err, res, body) {
 				body = JSON.parse(body);
 				assert.equal(body.results._id, testUser.id);

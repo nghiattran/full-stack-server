@@ -53,10 +53,8 @@ controller.signup = function (req, res) {
 	}
 
 	newUser.saveAsync()
-		.then(function(result) {		
-			// For some reason if using callback, result is an object
-			// but if using promise, result is an array
-			return res.json(controller.setUserReturnObject(result[0]));
+		.then(function(result) {
+			return res.json(controller.setUserReturnObject(result));
 		})
 		.catch(validationError(res));
 };
@@ -252,7 +250,6 @@ controller.getUser = function (req, res, next) {
 	var urlParts = url.parse(req.url, true);
 	var query = qs.parse(url.parse(req.url, true).query);
 	query.select = mongoosizeQueryString(query.select);
-	
 	User.findById(userId)
 		.select(query.select || null)
 		.then(function (results) {
