@@ -1,0 +1,12 @@
+sudo: false
+language: node_js
+node_js:
+  - v5
+  - v4
+services: mongodb
+
+before_script:
+  - ./util/create-admin.sh
+
+after_success:
+  - cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js && rm -rf ./coverage
